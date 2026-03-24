@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowUpRight } from 'lucide-react';
-import Image from 'next/image';
 import ScrambleText from './ScrambleText';
 import Magnetic from './Magnetic';
+import ProjectAsciiArt from './ProjectAsciiArt';
 
 interface Project {
   id: string;
@@ -118,14 +118,9 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
                 
                 {project.images.length > 0 && (
                   <div className="w-full aspect-[4/3] relative border border-black/10 dark:border-white/10 rounded-sm overflow-hidden group">
-                    <Image 
-                      src={project.images[0]} 
-                      alt={`${project.name} main preview`} 
-                      fill 
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                      referrerPolicy="no-referrer"
-                    />
+                    <div className="w-full h-full group-hover:scale-[1.02] transition-transform duration-700 ease-out">
+                      <ProjectAsciiArt id={project.id} variant="main" />
+                    </div>
                   </div>
                 )}
 
@@ -146,16 +141,11 @@ export default function ProjectModal({ project, isOpen, onClose }: ProjectModalP
 
                 {project.images.length > 1 && (
                   <div className="grid grid-cols-1 gap-8">
-                    {project.images.slice(1).map((img, idx) => (
+                    {project.images.slice(1).map((_, idx) => (
                       <div key={idx} className="w-full aspect-video relative border border-black/10 dark:border-white/10 rounded-sm overflow-hidden group">
-                        <Image 
-                          src={img} 
-                          alt={`${project.name} preview ${idx + 2}`} 
-                          fill 
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                          referrerPolicy="no-referrer"
-                        />
+                        <div className="w-full h-full group-hover:scale-[1.02] transition-transform duration-700 ease-out">
+                          <ProjectAsciiArt id={project.id} variant={`detail-${idx + 1}`} />
+                        </div>
                       </div>
                     ))}
                   </div>
