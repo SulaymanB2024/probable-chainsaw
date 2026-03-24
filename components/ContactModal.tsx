@@ -27,6 +27,20 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormState('submitting');
@@ -52,12 +66,15 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           {/* Noise overlay */}
           <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
           
-          <div className="fixed top-6 right-6 md:top-12 md:right-12 z-[110]">
+          <div className="fixed top-6 right-6 md:top-10 md:right-10 z-[140]">
             <Magnetic>
               <button 
                 onClick={onClose}
-                className="w-12 h-12 rounded-full border border-black/20 dark:border-white/20 flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-500 text-black dark:text-white bg-[#FAFAFA] dark:bg-[#050505]"
+                aria-label="Close contact modal"
+                className="h-11 px-4 rounded-none border border-black/40 dark:border-white/40 flex items-center justify-center gap-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 text-black dark:text-white bg-[#FAFAFA]/95 dark:bg-[#050505]/95 backdrop-blur-sm font-mono text-[10px] uppercase tracking-[0.2em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
               >
+                <span>Close</span>
+                <span className="opacity-50">[Esc]</span>
                 <X size={16} strokeWidth={1.5} />
               </button>
             </Magnetic>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type AsciiVariant = 'main' | `detail-${number}`;
 
@@ -105,16 +105,45 @@ function createFallback(id: string, variant: AsciiVariant): string[] {
 }
 
 export default function ProjectAsciiArt({ id, variant = 'main' }: { id: string; variant?: AsciiVariant }) {
-  const art = useMemo(() => {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 240);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const baseArt = useMemo(() => {
     const artKey = getArtKey(id, variant);
     return ASCII_PATTERNS[artKey] || createFallback(id, variant);
   }, [id, variant]);
+
+  const animatedArt = useMemo(() => {
+    const seed = `${id}-${variant}`.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + tick * 17;
+    return baseArt.map((line, rowIndex) => {
+      const chars = line.split('');
+      const maxMutations = Math.max(1, Math.floor(chars.length / 30));
+
+      for (let i = 0; i < maxMutations; i++) {
+        const n = Math.sin(seed * 0.031 + rowIndex * 0.77 + i * 1.91) * 0.5 + 0.5;
+        if (n > 0.84) {
+          const idx = Math.floor(n * (chars.length - 1));
+          const paletteIndex = Math.floor(((n * 1000) % 1) * DENSE_CHARS.length);
+          chars[idx] = DENSE_CHARS[paletteIndex];
+        }
+      }
+
+      return chars.join('');
+    });
+  }, [baseArt, id, tick, variant]);
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-white dark:bg-[#050505] overflow-hidden relative">
       <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
       <pre className="font-mono text-[8px] md:text-[10px] leading-tight text-black/70 dark:text-white/70 whitespace-pre select-none px-2">
-        {art.join('\n')}
+        {animatedArt.join('\n')}
       </pre>
     </div>
   );

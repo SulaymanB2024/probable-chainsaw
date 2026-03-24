@@ -30,6 +30,32 @@ export default function Navigation() {
     };
   }, []);
 
+  useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) => {
+      const element = target as HTMLElement | null;
+      if (!element) return false;
+      const tag = element.tagName.toLowerCase();
+      return tag === 'input' || tag === 'textarea' || element.isContentEditable;
+    };
+
+    const handleKeyboardControls = (event: KeyboardEvent) => {
+      if (isTypingTarget(event.target)) return;
+
+      if (event.key === 'Escape' && isOpen) {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+
+      if (event.key.toLowerCase() === 'm') {
+        event.preventDefault();
+        setIsOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyboardControls);
+    return () => window.removeEventListener('keydown', handleKeyboardControls);
+  }, [isOpen]);
+
   const navLinks = [
     { href: '#about', label: '01 / About' },
     { href: '#history', label: '02 / History' },
